@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
-import os
-import csv
-from multiprocessing import Process,Queue,Pool
+import sys,os,csv
+import datetime,getopt,configparser
+from multiprocessing import Process,Queue
 
 queue1 = Queue()
 queue2 = Queue()
@@ -12,37 +11,27 @@ class Args(object):
     def __init__(self):
         self.args = sys.argv[1:]
     def file_info(self):
-        if len(self.args) == 6:
-            config = self.args.index('-c')
-            configfile = self.args[config+1]
+        try:
+            options,args = getopt.getopt(self.args,"hC:c:d:o:",["help"])
+        except getopt.GetoptError:
+            sys.exit()
+        cityname = 'DEFAULT'
+        for name,value in options:
+            if name in ("-h","--help"):
+                print("Usage: calculator.py -C cityname -c configfile -d userdata -o resultdata
+")
+            if name in ("-C"):
+                cityname = value
+            if name in ("-c"):
+                configf = value
+            if name in ("-d"):
+                userfile = value
+            if name in ("-o"):
+                gongzifile = value
+        return configf,userfile,gongzifile,cityname
 
-            user = self.args.index('-d')
-            userfile = self.args[user+1]
-
-            gongzi = self.args.index('-o')
-            gongzifile = self.args[gongzi+1]
-            
-            #print(configfile,userfile,gongzifile)
-            return configfile,userfile,gongzifile
-        else:
-            print('Parameter Error')
-            sys.exit(-1)
-    
-class Config(Args):
-    def _read_config(self):
-        config = {}
-        if os.path.exists(self.file_info()[0]):
-            with open(self.file_info()[0],'r') as file:
-                for para in file.readlines():
-                    config[para.split('=')[0].strip()] = para.split('=')[1].strip()
-            #print(config)
-            return config
-        else:
-            print(str(c_path),'+','not exists!')
-            sys.exit(-2)
-    
-class UserData(Args):
-    def _read_users_data(self):
+class UserDate(Args):
+    def get_data():    
         userdata = {}
         if os.path.exists(self.file_info()[1]):
             with open(self.file_info()[1],'r') as file:
@@ -57,13 +46,7 @@ class UserData(Args):
 class IncomeTaxCalculator(Config,UserData):
     def calc_for_all_userdata(self):
         data = []
-        #print(self._read_config()['JiShuL'])
         for gonghao,sqgongzi in queue1.get().items():
-#            if float(sqgongzi) < float(self._read_config()['JiShuL']):
-#                shebao = float(self._read_config()['JiShuL'])*(float(self._read_config()['YangLao'])+float(self._read_config()['YiLiao'])+float(self._read_config()['ShiYe']))+float(self._read_config()['GongJiJin'])
-#            elif float(sqgongzi) > float(self._read_config()['JiShuH']):
-#                shebao = float(self._read_config()['JiShuH'])*(float(self._read_config()['YangLao'])+float(self._read_config()['YiLiao'])+float(self._read_config()['ShiYe']))+float(self._read_config()['GongJiJin'])
-#            else:
 #                shebao = float(sqgongzi)*(float(self._read_config()['YangLao'])+float(self._read_config()['YiLiao'])+float(self._read_config()['ShiYe']))+float(self._read_config()['GongJiJin'])
             if int(sqgongzi) < 2193:
                 shebao = 2193*0.165
